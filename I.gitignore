@@ -1,0 +1,38 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+
+# OS files
+.DS_Store
+.env
+.env.local
+.env.*.local
+
+# Secrets and sensitive files
+.replit
+replit.nix
+
+# Local data files (can be regenerated)
+entries.json
+devotions.json
+playlists.json
+
+# Large Bible database (can be downloaded from GitHub)
+public/kjv.json
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Misc
+server/public
+vite.config.ts.*
+*.tar.gz
