@@ -43,19 +43,24 @@ if (!fs.existsSync(devotionsFile)) {
 export async function registerRoutes(app: Express): Promise<Server> {
   // Faith Journal API Routes
   
-// GET all entries for current user
-app.get('/api/entries', (req, res) => {
-  const userId = (req.session as any)?.userId;
-  if (!userId) {
-    return res.status(401).json({ error: 'Not logged in' });
-  }
-  const entries = JSON.parse(fs.readFileSync(entriesFile, 'utf-8'));
-  const userEntries = entries.filter((e: any) => e.userId === userId);
-  res.json(userEntries);
-});
+  // GET all entries for current user
+  app.get('/api/entries', (req, res) => {
+    const userId = (req.session as any)?.userId;
+    if (!userId) {
+      return res.status(401).json({ error: 'Not logged in' });
+    }
+    const entries = JSON.parse(fs.readFileSync(entriesFile, 'utf-8'));
+    const userEntries = entries.filter((e: any) => e.userId === userId);
+    res.json(userEntries);
+  });
 
   // POST new entry with auto-suggestion (using keyword-based matching)
   app.post('/api/entries', async (req, res) => {
+    const userId = (req.session as any)?.userId;
+    if (!userId) {
+      return res.status(401).json({ error: 'Not logged in' });
+    }
+
     const { title, content } = req.body;
     if (!content) {
       return res.json({ success: false, message: 'Content cannot be empty' });
@@ -63,7 +68,7 @@ app.get('/api/entries', (req, res) => {
 
     // Get recent suggestions to avoid repetition
     const entries = JSON.parse(fs.readFileSync(entriesFile, 'utf-8'));
-    const recentSuggestions = entries.slice(-5).map((e: any) => {
+    const recentSuggestions = entries.filter((e: any) => e.userId === userId).slice(-5).map((e: any) => {
       if (e.suggestion) {
         const match = e.suggestion.match(/(\w+\s\d+:\d+)/);
         return match ? match[1] : '';
@@ -86,11 +91,12 @@ app.get('/api/entries', (req, res) => {
     const randomVerse = popularVerses[Math.floor(Math.random() * popularVerses.length)];
     const suggestion = `${randomVerse.book} ${randomVerse.chapter}:${randomVerse.verse} - "${randomVerse.text}"`;
 
-    // Save entry (fallback)
+    // Save entry with userId
     const newEntry = { 
       title: title || 'Untitled', 
       content, 
       date: new Date().toISOString(),
+      userId,
       suggestion
     };
     entries.push(newEntry);
@@ -98,11 +104,16 @@ app.get('/api/entries', (req, res) => {
     res.json({ success: true, entry: newEntry, suggestion });
   });
 
-  // DELETE entry by date
+  // DELETE entry by date (only user's own entries)
   app.delete('/api/entries/:date', (req, res) => {
+    const userId = (req.session as any)?.userId;
+    if (!userId) {
+      return res.status(401).json({ error: 'Not logged in' });
+    }
+
     const { date } = req.params;
     let entries = JSON.parse(fs.readFileSync(entriesFile, 'utf-8'));
-    entries = entries.filter((e: any) => e.date !== decodeURIComponent(date));
+    entries = entries.filter((e: any) => !(e.date === decodeURIComponent(date) && e.userId === userId));
     fs.writeFileSync(entriesFile, JSON.stringify(entries, null, 2));
     res.json({ success: true });
   });
