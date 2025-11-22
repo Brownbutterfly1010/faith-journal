@@ -8,18 +8,7 @@ Your sacred space for reflection and divine guidance, now powered by AI.
 📝 **Journal Entries** - Write and save your daily reflections with titles
 🤖 **AI-Powered Bible Verse Suggestions** - Elara analyzes your entries and suggests relevant Bible verses
 📖 **Entry Management** - View all your entries (newest first) and delete when needed
-💜 **Responsive Design** - Works beautifully on mobile and desktop
-
-## How to Use
-
-### Running the App
-
-```bash
-node server.js
-```
-
-Then open your browser to `http://localhost:3000`
-
+💜 **Responsive Design** - Works beautifully on mobile and desktop 
 ### Features Guide
 
 1. **Writing Entries**
