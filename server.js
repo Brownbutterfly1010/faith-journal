@@ -102,5 +102,4 @@ app.post('/suggest', async (req, res) => {
   }
 });
 
-
 app.listen(PORT, () => console.log(`Faith Journal server running on http://localhost:${PORT}`));
