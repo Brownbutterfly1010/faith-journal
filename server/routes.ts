@@ -14,9 +14,9 @@ const __dirname = path.dirname(__filename);
 // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-const entriesFile = path.join(process.cwd(), 'entries.json');
-const devotionsFile = path.join(process.cwd(), 'devotions.json');
-const playlistsFile = path.join(process.cwd(), 'playlists.json');
+const entriesFile = path.join(__dirname, '..', 'entries.json');
+const devotionsFile = path.join(__dirname, '..', 'devotions.json');
+const playlistsFile = path.join(__dirname, '..', 'playlists.json');
 
 // Ensure files exist
 if (!fs.existsSync(entriesFile)) {
@@ -149,7 +149,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Book and chapter required' });
       }
 
-      const kjvData = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'public/kjv.json'), 'utf-8'));
+      const kjvData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'public', 'kjv.json'), 'utf-8'));
       const bookStr = String(book);
       const chapterNum = parseInt(String(chapter));
 
