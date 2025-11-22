@@ -14,9 +14,9 @@ const __dirname = path.dirname(__filename);
 // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-const entriesFile = path.join(__dirname, '..', 'entries.json');
-const devotionsFile = path.join(__dirname, '..', 'devotions.json');
-const playlistsFile = path.join(__dirname, '..', 'playlists.json');
+const entriesFile = path.join(process.cwd(), 'entries.json');
+const devotionsFile = path.join(process.cwd(), 'devotions.json');
+const playlistsFile = path.join(process.cwd(), 'playlists.json');
 
 // Ensure files exist
 if (!fs.existsSync(entriesFile)) {
@@ -43,33 +43,22 @@ if (!fs.existsSync(devotionsFile)) {
 export async function registerRoutes(app: Express): Promise<Server> {
   // Faith Journal API Routes
   
-  // GET all entries for current user ONLY
+  // GET all entries
   app.get('/api/entries', (req, res) => {
-    const userId = (req.session as any)?.userId;
-    if (!userId) {
-      return res.json([]);
-    }
     const entries = JSON.parse(fs.readFileSync(entriesFile, 'utf-8'));
-    const userEntries = entries.filter((e: any) => e.userId === userId);
-    res.json(userEntries);
+    res.json(entries);
   });
 
-  // POST new entry with auto-suggestion (REQUIRES USER LOGIN)
+  // POST new entry with auto-suggestion (using keyword-based matching)
   app.post('/api/entries', async (req, res) => {
-    const userId = (req.session as any)?.userId;
-    if (!userId) {
-      return res.status(401).json({ error: 'Must be logged in to save entries' });
-    }
-
     const { title, content } = req.body;
     if (!content) {
       return res.json({ success: false, message: 'Content cannot be empty' });
     }
 
-    // Get recent suggestions to avoid repetition (only this user's entries)
+    // Get recent suggestions to avoid repetition
     const entries = JSON.parse(fs.readFileSync(entriesFile, 'utf-8'));
-    const userEntries = entries.filter((e: any) => e.userId === userId);
-    const recentSuggestions = userEntries.slice(-5).map((e: any) => {
+    const recentSuggestions = entries.slice(-5).map((e: any) => {
       if (e.suggestion) {
         const match = e.suggestion.match(/(\w+\s\d+:\d+)/);
         return match ? match[1] : '';
@@ -92,12 +81,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const randomVerse = popularVerses[Math.floor(Math.random() * popularVerses.length)];
     const suggestion = `${randomVerse.book} ${randomVerse.chapter}:${randomVerse.verse} - "${randomVerse.text}"`;
 
-    // Save entry with userId (ALWAYS include userId)
+    // Save entry (fallback)
     const newEntry = { 
       title: title || 'Untitled', 
       content, 
       date: new Date().toISOString(),
-      userId,
       suggestion
     };
     entries.push(newEntry);
@@ -105,16 +93,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ success: true, entry: newEntry, suggestion });
   });
 
-  // DELETE entry by date (ONLY user's own entries)
+  // DELETE entry by date
   app.delete('/api/entries/:date', (req, res) => {
-    const userId = (req.session as any)?.userId;
-    if (!userId) {
-      return res.status(401).json({ error: 'Must be logged in to delete entries' });
-    }
-    
     const { date } = req.params;
     let entries = JSON.parse(fs.readFileSync(entriesFile, 'utf-8'));
-    entries = entries.filter((e: any) => !(e.date === decodeURIComponent(date) && e.userId === userId));
+    entries = entries.filter((e: any) => e.date !== decodeURIComponent(date));
     fs.writeFileSync(entriesFile, JSON.stringify(entries, null, 2));
     res.json({ success: true });
   });
@@ -147,7 +130,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Book and chapter required' });
       }
 
-      const kjvData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'public', 'kjv.json'), 'utf-8'));
+      const kjvData = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'public/kjv.json'), 'utf-8'));
       const bookStr = String(book);
       const chapterNum = parseInt(String(chapter));
 
