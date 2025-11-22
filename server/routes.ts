@@ -43,11 +43,16 @@ if (!fs.existsSync(devotionsFile)) {
 export async function registerRoutes(app: Express): Promise<Server> {
   // Faith Journal API Routes
   
-  // GET all entries
-  app.get('/api/entries', (req, res) => {
-    const entries = JSON.parse(fs.readFileSync(entriesFile, 'utf-8'));
-    res.json(entries);
-  });
+// GET all entries for current user
+app.get('/api/entries', (req, res) => {
+  const userId = (req.session as any)?.userId;
+  if (!userId) {
+    return res.status(401).json({ error: 'Not logged in' });
+  }
+  const entries = JSON.parse(fs.readFileSync(entriesFile, 'utf-8'));
+  const userEntries = entries.filter((e: any) => e.userId === userId);
+  res.json(userEntries);
+});
 
   // POST new entry with auto-suggestion (using keyword-based matching)
   app.post('/api/entries', async (req, res) => {
