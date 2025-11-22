@@ -1,0 +1,215 @@
+u changed my html way it looks like this just make it work with the back end my html is like this <!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Faith Journal with Elara</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><path d='M12 34c0 0 7-10 18-10 11 0 20 11 20 11s-4-1-9 2c-5 3-27-3-29-3z' fill='%237a1fc3'/></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <div class="logo" aria-hidden="true">
+        <svg width="44" height="44" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 34c0 0 7-10 18-10 11 0 20 11 20 11s-4-1-9 2c-5 3-27-3-29-3z" fill="#ffffff" />
+          <path d="M43 22c0 0 4-3 9-1 0 0-4 2-6 5 0 0-3-2-3-4z" fill="#9b55d9" />
+          <path d="M18 36c6-3 12-1 15 0 4 2 12 6 17 9 0 0-2 3-7 2-5-1-20-6-25-8-5-2-2-3 0-3z" fill="#7a1fc3"/>
+          <path d="M29 18c0 0-7 6-13 6 0 0 8-7 13-6z" fill="#caa7f0"/>
+        </svg>
+      </div>
+      <h1>Faith Journal with Elara</h1>
+      <p>Your sacred space for reflection and divine guidance</p>
+    </header>
+
+    <div class="card">
+      <input class="title-input" placeholder="Untitled" id="titleInput" aria-label="Entry title" />
+      <textarea id="entryInput" placeholder="Start writing your entry..." aria-label="Entry body"></textarea>
+      <div class="save-wrap">
+        <button class="btn-save" id="saveBtn">Save Entry</button>
+      </div>
+    </div>
+
+    <section class="section">
+      <h2>Your Entries</h2>
+      <div class="empty-area" id="entriesEmpty">
+        <svg class="book-ico" viewBox="0 0 24 24" fill="none">
+          <path d="M3 6.5C3 5.67157 3.67157 5 4.5 5H19.5C20.3284 5 21 5.67157 21 6.5V18C21 19.1046 20.1046 20 19 20H5C3.89543 20 3 19.1046 3 18V6.5Z" stroke="#9A95A0" stroke-width="1.2"/>
+          <path d="M7 7V17" stroke="#9A95A0" stroke-width="1.2"/>
+        </svg>
+        <h3>Begin your faith journey</h3>
+        <p>Nothing here yet :(</p>
+      </div>
+      <div id="banner" class="banner"></div>
+
+      <div class="preview-footer">
+        <button id="seeAllBtn">See All Entries</button>
+      </div>
+      
+
+      <div id="entriesList"></div>
+    </section>
+  </div>
+  <nav class="app-nav">
+    <ul>
+      <li><a href="#">🏠<span>Home</span></a></li>
+      <li><a href="#">📓<span>Entries</span></a></li>
+      <li><a href="#">✍️<span>Authors</span></a></li>
+    </ul>
+  </nav>
+  
+
+<script>
+  document.getElementById("seeAllBtn").addEventListener("click", () => {
+    window.location.href = "/entries-page.html"; // or scroll to your entries section
+  });
+  
+  saveBtn.addEventListener('click', async () => {
+    const title = titleInput.value.trim() || 'Untitled';
+    const content = entryInput.value.trim();
+    
+    if (!content) return showBanner("You must type something before saving!");
+    
+    const res = await fetch("/entries", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({title, content})
+    });
+    const data = await res.json();
+  
+    if(data.success){
+      titleInput.value = '';
+      entryInput.value = '';
+      loadEntries();
+      showBanner("Entry saved successfully! ✅");
+    }
+  });
+  
+const saveBtn = document.getElementById('saveBtn');
+const titleInput = document.getElementById('titleInput');
+const entryInput = document.getElementById('entryInput');
+const emptyArea = document.getElementById('entriesEmpty');
+
+saveBtn.addEventListener('click', async () => {
+  const title = titleInput.value.trim() || 'Untitled';
+  const content = entryInput.value.trim();
+  if (!content) return alert("Please write something before saving!");
+
+  const res = await fetch("/entries", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ title, content })
+  });
+
+  const data = await res.json();
+  if(data.success){
+    titleInput.value='';
+    entryInput.value='';
+    loadEntries();
+  }
+});
+document.querySelectorAll(".delete-btn").forEach(btn => {
+  btn.addEventListener("click", async () => {
+    const date = btn.getAttribute("data-date");
+
+    // Custom confirm using banner
+    const confirmDelete = confirmBanner(`Are you sure you want to delete this entry?`);
+    if (!confirmDelete) return;
+
+    await fetch(`/entries/${date}`, { method: "DELETE" });
+    loadEntries();
+  });
+});
+
+function confirmBanner(message) {
+  return window.confirm(message); // or replace with a modal popup if you want fully styled
+}
+
+async function loadEntries(){
+  const res = await fetch("/entries");
+  const entries = await res.json();
+
+  emptyArea.style.display = entries.length ? "none" : "flex";
+
+  const list = document.getElementById("entriesList");
+  list.innerHTML = "";
+
+  entries.slice().reverse().forEach(entry => { // newest first
+    const card = document.createElement("div");
+    card.className = "entry-card";
+    card.innerHTML = `
+      <h3>${entry.title}</h3>
+      <p>${entry.content.replace(/\n/g, '<br>')}</p>
+      <small>${entry.date.split("T")[0]}</small>
+    `;
+    list.appendChild(card);
+  });
+}
+
+async function loadEntries() {
+  const res = await fetch("/entries");
+  const data = await res.json();
+
+  emptyArea.style.display = data.length ? "none" : "flex";
+
+  const list = document.getElementById("entriesList");
+  list.innerHTML = "";
+
+  data.slice().reverse().forEach(entry => {
+    const card = document.createElement("div");
+    card.className = "entry-card";
+
+    card.innerHTML = `
+      <h3>${entry.title}</h3>
+      <p>${entry.content.replace(/\n/g,"<br>")}</p>
+      <small>${entry.date.split("T")[0]}</small>
+      <button class="delete-btn" data-date="${entry.date}">🗑️ Delete</button>
+    `;
+    list.appendChild(card);
+  });
+
+  const suggestionRes = await fetch("/suggest", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ content })
+  });
+
+  const suggestionData = await suggestionRes.json();
+  alert("Elara Suggests: " + suggestionData.suggestion);
+  // Show latest 3 entries for the preview
+const previewEntries = entries.slice(-3).reverse(); // newest first
+previewEntries.forEach(entry => {
+  const card = document.createElement("div");
+  card.className = "entry-card";
+  card.innerHTML = `
+    <h3>${entry.title}</h3>
+    <p>${entry.content.replace(/\n/g, '<br>')}</p>
+    <small>${entry.date.split("T")[0]}</small>
+  `;
+  document.getElementById("entriesList").appendChild(card);
+});
+
+  // Add event listeners for delete buttons
+  document.querySelectorAll(".delete-btn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const date = btn.getAttribute("data-date");
+      const confirmed = confirm("Are you sure you want to delete this entry?");
+      if (!confirmed) return;
+
+      await fetch(`/entries/${date}`, { method: "DELETE" });
+      loadEntries(); // refresh entries
+    });
+  });
+}
+
+
+loadEntries();
+</script>
+</body>
+</html>
+
