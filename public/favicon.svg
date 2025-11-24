@@ -1,0 +1,12 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
+  <defs>
+    <linearGradient id='purpleGrad' x1='0%' y1='0%' x2='100%' y2='100%'>
+      <stop offset='0%' style='stop-color:#7a1fc3;stop-opacity:1' />
+      <stop offset='100%' style='stop-color:#61219a;stop-opacity:1' />
+    </linearGradient>
+  </defs>
+  <rect width='100' height='100' fill='url(#purpleGrad)'/>
+  <circle cx='50' cy='35' r='8' fill='#caa7f0'/>
+  <path d='M35 55 Q50 45 65 55 Q60 65 50 68 Q40 65 35 55' fill='#ffffff' opacity='0.8'/>
+  <path d='M45 70 L50 85 L55 70' fill='#caa7f0' opacity='0.6'/>
+</svg>
