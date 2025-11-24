@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { AppNavbar } from "@/components/app-navbar";
-import { Loader2, Trash2 } from "lucide-react";
+import { AdSenseSlot } from "@/components/adsense-slot";
+import { Loader2, Trash2, Wand2 } from "lucide-react";
+import { useLocation } from "wouter";
 
 type Entry = {
   title: string;
@@ -17,9 +19,24 @@ type Entry = {
 };
 
 export default function Home() {
+  const [, navigate] = useLocation();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [userName, setUserName] = useState("");
+  const [isSpinning, setIsSpinning] = useState(false);
   const { toast } = useToast();
+
+  const handleChatClick = () => {
+    setIsSpinning(true);
+    setTimeout(() => navigate('/chat'), 300);
+  };
+
+  useEffect(() => {
+    const savedName = localStorage.getItem("userDisplayName");
+    if (savedName) {
+      setUserName(savedName);
+    }
+  }, []);
 
   const { data: entries = [] } = useQuery<Entry[]>({
     queryKey: ['/api/entries'],
@@ -77,15 +94,15 @@ export default function Home() {
     }
   };
 
-  const lastThreeEntries = [...entries].reverse().slice(0, 3);
+  const lastThreeEntries = [...entries].reverse().slice(0, 2);
 
   return (
     <div className="min-h-screen bg-background pb-32">
       <div className="max-w-3xl mx-auto px-4 py-8">
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 animate-fade-in">
           <div className="flex justify-center mb-4">
-            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-white to-gray-50 flex items-center justify-center shadow-sm border border-border">
+            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-white to-gray-50 flex items-center justify-center shadow-sm border border-border animate-scale-in">
               <svg width="32" height="32" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 34c0 0 7-10 18-10 11 0 20 11 20 11s-4-1-9 2c-5 3-27-3-29-3z" fill="#7a1fc3" />
                 <path d="M43 22c0 0 4-3 9-1 0 0-4 2-6 5 0 0-3-2-3-4z" fill="#9b55d9" />
@@ -95,7 +112,7 @@ export default function Home() {
             </div>
           </div>
           <h1 className="text-4xl font-serif font-bold mb-2" style={{ fontFamily: 'Playfair Display, serif' }}>
-            Faith Journal with Elara
+            {userName ? `Welcome, ${userName}` : "Faith Journal with Elara"}
           </h1>
           <p className="text-muted-foreground text-lg">
             Your sacred space for reflection and divine guidance
@@ -186,9 +203,49 @@ export default function Home() {
                     
                     {entry.suggestion && (
                       <div className="pt-4 border-t border-border mt-4">
-                        <div className="bg-gradient-to-br from-purple-50 to-violet-50 p-4 rounded-lg border border-purple-200">
-                          <p className="text-sm italic text-purple-900 leading-relaxed">{entry.suggestion}</p>
-                        </div>
+                        {entry.suggestion.includes('CHAT_SUGGESTION:') ? (
+                          <div className="bg-gradient-to-br from-blue-50 to-cyan-50 p-4 rounded-lg border border-blue-200 space-y-3">
+                            <p className="text-xs uppercase tracking-wider text-blue-600 font-semibold">Elara's Suggestion</p>
+                            <p className="text-sm text-blue-900 leading-relaxed">
+                              {entry.suggestion.replace('CHAT_SUGGESTION: ', '')}
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="bg-gradient-to-br from-purple-50 to-violet-50 p-4 rounded-lg border border-purple-200 space-y-3">
+                            <p className="text-xs uppercase tracking-wider text-purple-600 font-semibold">Elara's Verse Recommendation</p>
+                            
+                            {entry.suggestion.includes('VERSE:') ? (
+                              <>
+                                {entry.suggestion.match(/VERSE:\s*(.+?)(?=TEXT:|$)/s) && (
+                                  <div>
+                                    <p className="text-sm font-semibold text-purple-700">
+                                      {entry.suggestion.match(/VERSE:\s*(.+?)(?=TEXT:|$)/s)?.[1]?.trim() || ''}
+                                    </p>
+                                  </div>
+                                )}
+                                
+                                {entry.suggestion.match(/TEXT:\s*(.+?)(?=MEANING:|$)/s) && (
+                                  <div>
+                                    <p className="text-sm text-purple-800 italic">
+                                      {entry.suggestion.match(/TEXT:\s*(.+?)(?=MEANING:|$)/s)?.[1]?.trim() || ''}
+                                    </p>
+                                  </div>
+                                )}
+                                
+                                {entry.suggestion.match(/MEANING:\s*(.+?)$/s) && (
+                                  <div>
+                                    <p className="text-xs font-semibold text-purple-600 mb-1">Meaning</p>
+                                    <p className="text-sm text-purple-900 leading-relaxed">
+                                      {entry.suggestion.match(/MEANING:\s*(.+?)$/s)?.[1]?.trim() || ''}
+                                    </p>
+                                  </div>
+                                )}
+                              </>
+                            ) : (
+                              <p className="text-sm text-purple-900 leading-relaxed whitespace-pre-wrap">{entry.suggestion}</p>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
                   </CardContent>
@@ -197,7 +254,34 @@ export default function Home() {
             </div>
           )}
         </div>
+
+        {/* AdSense Ad Slot */}
+        <div className="mt-8 mb-6">
+          <p className="text-xs uppercase tracking-wider text-muted-foreground mb-3 text-center font-semibold">Our Sponsors</p>
+          <AdSenseSlot adSlot="1234567890" adFormat="horizontal" height="90px" responsive={true} />
+          <div className="flex justify-center mt-4">
+            <Button 
+              asChild
+              className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold shadow-md hover:shadow-lg transition-all"
+              data-testid="button-buy-coffee"
+            >
+              <a href="/donate" className="no-underline">
+                ☕ Buy Me a Coffee
+              </a>
+            </Button>
+          </div>
+        </div>
       </div>
+
+      {/* Floating Elara Chat Button */}
+      <button
+        onClick={handleChatClick}
+        className="fixed bottom-24 right-6 w-16 h-16 bg-gradient-to-br from-[#7a1fc3] to-[#61219a] rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 active:scale-95 flex items-center justify-center z-40 group"
+        data-testid="button-elara-chat"
+        title="Chat with Elara"
+      >
+        <Wand2 className={`w-8 h-8 text-white ${isSpinning ? 'animate-spin' : 'group-hover:animate-spin'}`} />
+      </button>
 
       <AppNavbar />
     </div>

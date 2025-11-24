@@ -2,8 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AppNavbar } from "@/components/app-navbar";
-import { Trash2 } from "lucide-react";
+import { Trash2, Wand2 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
+import { useLocation } from "wouter";
+import { useState } from "react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -15,7 +17,15 @@ type Entry = {
 };
 
 export default function EntriesAll() {
+  const [, navigate] = useLocation();
+  const [isSpinning, setIsSpinning] = useState(false);
   const { toast } = useToast();
+
+  const handleChatClick = () => {
+    setIsSpinning(true);
+    setTimeout(() => navigate('/chat'), 300);
+  };
+
   const { data: entries = [] } = useQuery<Entry[]>({
     queryKey: ['/api/entries'],
   });
@@ -111,6 +121,16 @@ export default function EntriesAll() {
           </div>
         )}
       </div>
+
+      {/* Floating Elara Chat Button */}
+      <button
+        onClick={handleChatClick}
+        className="fixed bottom-24 right-6 w-16 h-16 bg-gradient-to-br from-[#7a1fc3] to-[#61219a] rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 active:scale-95 flex items-center justify-center z-40 group"
+        data-testid="button-elara-chat"
+        title="Chat with Elara"
+      >
+        <Wand2 className={`w-8 h-8 text-white ${isSpinning ? 'animate-spin' : 'group-hover:animate-spin'}`} />
+      </button>
 
       <AppNavbar />
     </div>

@@ -7,19 +7,19 @@ import bibleImg from "@assets/IMG_2026_1763791961456.jpeg";
 
 const BOOKS = [
   "Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy",
-  "Joshua", "Judges", "Ruth", "I Samuel", "II Samuel",
-  "I Kings", "II Kings", "I Chronicles", "II Chronicles", "Ezra",
-  "Nehemiah", "Esther", "Job", "Psalms", "Proverbs",
+  "Joshua", "Judges", "Ruth", "1 Samuel", "2 Samuel",
+  "1 Kings", "2 Kings", "1 Chronicles", "2 Chronicles", "Ezra",
+  "Nehemiah", "Esther", "Job", "Psalm", "Proverbs",
   "Ecclesiastes", "Song of Solomon", "Isaiah", "Jeremiah", "Lamentations",
   "Ezekiel", "Daniel", "Hosea", "Joel", "Amos",
   "Obadiah", "Jonah", "Micah", "Nahum", "Habakkuk",
   "Zephaniah", "Haggai", "Zechariah", "Malachi",
   "Matthew", "Mark", "Luke", "John", "Acts",
-  "Romans", "I Corinthians", "II Corinthians", "Galatians", "Ephesians",
-  "Philippians", "Colossians", "I Thessalonians", "II Thessalonians", "I Timothy",
-  "II Timothy", "Titus", "Philemon", "Hebrews", "James",
-  "I Peter", "II Peter", "I John", "II John", "III John",
-  "Jude", "Revelation of John"
+  "Romans", "1 Corinthians", "2 Corinthians", "Galatians", "Ephesians",
+  "Philippians", "Colossians", "1 Thessalonians", "2 Thessalonians", "1 Timothy",
+  "2 Timothy", "Titus", "Philemon", "Hebrews", "James",
+  "1 Peter", "2 Peter", "1 John", "2 John", "3 John",
+  "Jude", "Revelation"
 ];
 
 export default function Bible() {
@@ -33,7 +33,7 @@ export default function Bible() {
       "Genesis": 50, "Exodus": 40, "Leviticus": 27, "Numbers": 36, "Deuteronomy": 34,
       "Joshua": 24, "Judges": 21, "Ruth": 4, "1 Samuel": 31, "2 Samuel": 24,
       "1 Kings": 22, "2 Kings": 25, "1 Chronicles": 29, "2 Chronicles": 36, "Ezra": 10,
-      "Nehemiah": 13, "Esther": 10, "Job": 42, "Psalms": 150, "Proverbs": 31,
+      "Nehemiah": 13, "Esther": 10, "Job": 42, "Psalm": 150, "Proverbs": 31,
       "Ecclesiastes": 12, "Song of Solomon": 8, "Isaiah": 66, "Jeremiah": 52, "Lamentations": 5,
       "Ezekiel": 48, "Daniel": 12, "Hosea": 14, "Joel": 3, "Amos": 9,
       "Obadiah": 1, "Jonah": 4, "Micah": 7, "Nahum": 3, "Habakkuk": 3,
@@ -74,24 +74,25 @@ export default function Bible() {
             Bible
           </h1>
           <p className="text-gray-600 text-lg">
-            King James Version
+            American Standard Version (ASV) - Complete Bible
           </p>
         </div>
 
-        {/* Banner Island */}
-        <div className="mb-8">
-          <Card className="bg-white border-purple-100 overflow-hidden">
+        {/* Banner Island - Seamless with Image */}
+        <div className="mb-8 animate-fade-in">
+          <Card className="bg-white border-purple-100 overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
             <CardContent className="p-0">
-              <div className="h-48 bg-purple-100 flex items-center justify-center border-b border-purple-100">
+              <div className="h-56 bg-gradient-to-br from-purple-100 to-purple-50 flex items-center justify-center overflow-hidden relative">
                 <img 
                   src={bibleImg} 
                   alt="Bible" 
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
               </div>
-              <div className="p-6">
-                <h2 className="text-lg font-serif font-bold text-gray-900 mb-2">Sacred Scripture</h2>
-                <p className="text-sm text-gray-600">Explore God's word by book, chapter, and verse.</p>
+              <div className="p-6 bg-gradient-to-br from-white to-purple-50">
+                <h2 className="text-2xl font-serif font-bold text-gray-900 mb-2">Sacred Scripture</h2>
+                <p className="text-sm text-gray-600">Explore all 66 books with all chapters and verses. American Standard Version - Your complete Bible reference.</p>
               </div>
             </CardContent>
           </Card>
@@ -129,7 +130,7 @@ export default function Bible() {
               <h2 className="text-3xl font-serif font-bold" style={{ fontFamily: 'Playfair Display, serif' }}>
                 {selectedBook}
               </h2>
-              <p className="text-purple-100 mt-2">King James Version</p>
+              <p className="text-purple-100 mt-2">American Standard Version (ASV)</p>
             </div>
 
             <div className="space-y-2 max-h-96 overflow-y-auto border border-purple-200 rounded-lg bg-white p-4">
@@ -160,7 +161,7 @@ export default function Bible() {
               <h2 className="text-3xl font-serif font-bold" style={{ fontFamily: 'Playfair Display, serif' }}>
                 {selectedBook} {selectedChapter}
               </h2>
-              <p className="text-purple-100 mt-2">King James Version</p>
+              <p className="text-purple-100 mt-2">American Standard Version (ASV)</p>
             </div>
 
             {loading ? (

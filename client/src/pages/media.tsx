@@ -2,6 +2,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AppNavbar } from "@/components/app-navbar";
+import { AdSenseSlot } from "@/components/adsense-slot";
 import { Trash2, Star, ExternalLink } from "lucide-react";
 import { SiSpotify } from "react-icons/si";
 import { queryClient } from "@/lib/queryClient";
@@ -150,8 +151,8 @@ export default function Media() {
         </div>
 
         {/* Featured Playlist Island */}
-        <div className="mb-8">
-          <Card className="bg-white border-purple-100 overflow-hidden">
+        <div className="mb-8 animate-fade-in">
+          <Card className="bg-white border-purple-100 overflow-hidden shadow-lg">
             <CardContent className="p-6">
               <iframe
                 src={`https://open.spotify.com/embed/playlist/${FEATURED_PLAYLIST_ID}`}
@@ -162,6 +163,41 @@ export default function Media() {
                 loading="lazy"
                 data-testid="iframe-featured-playlist"
               />
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Featured Series - The Chosen */}
+        <div className="mb-8 animate-fade-in">
+          <Card className="bg-gradient-to-br from-purple-600 to-purple-800 text-white border-0 overflow-hidden shadow-xl">
+            <CardContent className="p-8">
+              <div className="flex gap-6 items-start">
+                <div className="flex-1">
+                  <div className="inline-block bg-white/20 px-3 py-1 rounded-full text-xs font-medium mb-4 backdrop-blur">Featured Series</div>
+                  <h3 className="text-3xl font-serif font-bold mb-3">The Chosen</h3>
+                  <p className="text-purple-100 mb-5">Follow the epic journeys of the disciples of Jesus Christ as their lives are forever transformed. Award-winning series capturing faith, doubt, and redemption.</p>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="flex gap-0.5">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className="w-5 h-5 fill-yellow-300 text-yellow-300"
+                        />
+                      ))}
+                    </div>
+                    <span className="font-bold">8.8/10 IMDb</span>
+                  </div>
+                  <a
+                    href="https://thechosen.tv/en-us"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-white text-purple-700 hover:bg-purple-50 px-5 py-2 rounded-lg font-medium transition-all hover:scale-105 shadow-md"
+                  >
+                    Watch on The Chosen App
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
